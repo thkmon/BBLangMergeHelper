@@ -48,32 +48,65 @@ public class BBLangMergeHelper {
 			System.out.println("total size : " + totalLangList.size());
 			
 			StringList resultList = new StringList();
-			
 			int langCount1 = 0;
 			int langCount2 = 0;
 			
-			String oneLangCode = "";
-			int count = totalLangList.size();
-			for (int i=0; i<count; i++) {
-				oneLangCode = totalLangList.get(i);
-				if (oneLangCode == null || oneLangCode.length() == 0) {
-					continue;
-				}
-				
-				String langValue1 = langSet1.getLangMap().get(oneLangCode);
-				if (langValue1 != null && langValue1.length() > 0) {
-					resultList.add(oneLangCode + "=" + langValue1);
-					langCount1++;
-				} else {
-					String langValue2 = langSet2.getLangMap().get(oneLangCode);
-					resultList.add(oneLangCode + "=" + langValue2);
-					langCount2++;
+			{
+				String oneLangCode = "";
+				int count = totalLangList.size();
+				for (int i=0; i<count; i++) {
+					oneLangCode = totalLangList.get(i);
+					if (oneLangCode == null || oneLangCode.length() == 0) {
+						continue;
+					}
+					
+					String langValue1 = langSet1.getLangMap().get(oneLangCode);
+					if (langValue1 != null && langValue1.length() > 0) {
+						resultList.add(oneLangCode + "=" + langValue1);
+						langCount1++;
+					} else {
+						String langValue2 = langSet2.getLangMap().get(oneLangCode);
+						resultList.add(oneLangCode + "=" + langValue2);
+						langCount2++;
+					}
 				}
 			}
 			
-			// 알파벳순 정렬
 			if (resultList != null && resultList.size() > 0) {
+				// 알파벳순 정렬
 				Collections.sort(resultList);
+				
+				String preLangCode = "";
+				String newLangCode = "";
+				String oneLine = "";
+//				int newCount = resultList.size();
+				for (int i=0; i<resultList.size(); i++) {
+					oneLine = resultList.get(i);
+					if (oneLine == null || oneLine.startsWith("#") || oneLine.length() < 6) {
+						continue;
+					}
+					
+					newLangCode = oneLine.substring(0, 6);
+					
+					if (i == 0) {
+						resultList.add(i, "########## " + newLangCode.substring(0, 2) + " ##########");
+					}
+					
+					if (preLangCode != null && preLangCode.length() > 2) {
+						if (newLangCode != null && newLangCode.length() > 2) {
+							if (!newLangCode.substring(0, 2).equals(preLangCode.substring(0, 2))) {
+								resultList.add(i, "########## " + newLangCode.substring(0, 2) + " ##########");
+								resultList.add(i, "");
+								resultList.add(i, "");
+								resultList.add(i, "");
+								resultList.add(i, "");
+								resultList.add(i, "");
+							}
+						}
+					}
+					
+					preLangCode = newLangCode;
+				}
 			
 				// 파일쓰기
 				FileUtil.writeFile("C:\\test\\result.txt", resultList, false);
